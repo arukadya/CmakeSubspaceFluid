@@ -12,7 +12,7 @@ FixedObjectRenderer::FixedObjectRenderer()
 void FixedObjectRenderer::rendering(Matrix4x4 &projection,Matrix4x4 &modelview)
 {
     // プログラムオブジェクトを作成する
-    const GLuint surfaceProgram(loadVertFragProgram("Shader/point.vert", "Shader/point.frag"));
+    const GLuint surfaceProgram(loadVertFragProgram("../../shader/point.vert", "../../shader/point.frag"));
     
     std::unique_ptr<const Shape>shape_wire(new ShapeIndex(3,8,cubeVertex,24,wireCubeIndex));
     std::unique_ptr<const Shape>shape(new SolidShapeIndex(3,36,solidCubeVertex,36,solidCubeIndex));

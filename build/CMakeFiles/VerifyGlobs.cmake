@@ -8,6 +8,7 @@ set(OLD_GLOB
   "M:/dev/github/SubspaceFluid/src/ComputeCommand.cpp"
   "M:/dev/github/SubspaceFluid/src/FixedObjectRenderer.cpp"
   "M:/dev/github/SubspaceFluid/src/ShaderCommand.cpp"
+  "M:/dev/github/SubspaceFluid/src/ShaderDebugger.cpp"
   "M:/dev/github/SubspaceFluid/src/Simulator.cpp"
   "M:/dev/github/SubspaceFluid/src/SliceRenderer.cpp"
   "M:/dev/github/SubspaceFluid/src/main.cpp"

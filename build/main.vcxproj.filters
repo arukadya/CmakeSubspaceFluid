@@ -10,6 +10,9 @@
     <ClCompile Include="M:\dev\github\SubspaceFluid\src\ShaderCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="M:\dev\github\SubspaceFluid\src\ShaderDebugger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="M:\dev\github\SubspaceFluid\src\Simulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

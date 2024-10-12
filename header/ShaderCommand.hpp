@@ -28,5 +28,6 @@ bool readShaderSource(const char *name, std::vector<GLchar> &buffer);
 // frag: フラグメントシェーダのソースファイル名
 GLuint loadVertFragProgram(const char *vert, const char *frag);
 GLuint loadComputeProgram(const char *comp);
+void deleteComputeShaderProgram(GLuint program);
 #endif
 

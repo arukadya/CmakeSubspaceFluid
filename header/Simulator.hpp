@@ -8,26 +8,26 @@
 #include <iostream>
 #include <vector>
 #include <string>
-//#include "Mesh.hpp"
 #include "ComputeCommand.hpp"
-//#include "igl/signed_distance.h"
-
+#include "ShaderCommand.hpp"
 struct Simulator{
     //FluidVariables
     static float timestep;
     static float dx;
+    float* x_velocityTexture;
+    float* y_velocityTexture;
+    float* z_velocityTexture;
+    float* x_forceTexture;
+    float* y_forceTexture;
+    float* z_forceTexture;
+    float* pressureTexture;
     float* rhoTexture;
-    //SolidVariables
-//    Mesh mesh;
-//    Eigen::Matrix3X<double> SDFGridPos;
-//    Eigen::MatrixXd SignedDistanceFunction;
-//    Eigen::Matrix3X<double> presudoNormals;
-//    Eigen::VectorXi AABB_index;
+    float* templatureTexture;
+    float* testTexture;
     
     Simulator();
     //FluidFunctions
-    
-    
+    void testCompute();
     //SolidFunctions
     void inputTXT(std::string &InputFileName);
 private:

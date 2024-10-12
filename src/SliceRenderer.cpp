@@ -213,7 +213,7 @@ GLuint makeSlice()
 }
 void SliceRenderer::rendering(Matrix4x4 &projection,Matrix4x4 &modelview,Matrix4x4 &sliceRot,float* rhoTexture)
 {
-    const GLuint volumeProgram(loadVertFragProgram("Shader/volume.vert", "Shader/volume.frag"));
+    const GLuint volumeProgram(loadVertFragProgram("../../shader/volume.vert", "../../shader/volume.frag"));
     const GLint mwLoc(glGetUniformLocation(volumeProgram, "mw"));
     const GLint mpLoc(glGetUniformLocation(volumeProgram, "mp"));
     const GLint spacingLoc(glGetUniformLocation(volumeProgram, "spacing"));

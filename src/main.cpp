@@ -1,5 +1,7 @@
 
 #define GLEW_STATIC
+#define STBI_MSC_SECURE_CRT
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -17,6 +19,7 @@
 #include "FixedObjectRenderer.hpp"
 #include "SliceRenderer.hpp"
 #include "Eigen/Dense"
+#include "ShaderDebugger.hpp"
 
 int main(int argc, char * argv[])
 {
@@ -60,12 +63,14 @@ int main(int argc, char * argv[])
     float sum = 0;
     while(window)
     {
-        std::string str = "rhoTexture";
-        if(id % 500 == 100)
+        std::string str_rho = "rhoTexture";
+        std::string str_test = "testTexture";
+        if(id % 500 == 50)
         {
-            //buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.rhoTexture,str);
+            buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.rhoTexture,str_rho);
+            buffer_write_png(TEXWIDTH,TEXHEIGHT,1,1,simulator.testTexture,str_test);
         }
-        std::string inputFileName = "resources/density_txt/output";
+        std::string inputFileName = "../../resources/density_txt/output";
         inputFileName += std::to_string(id % 500)+".txt";
         ++id;
         simulator.inputTXT(inputFileName);
@@ -108,7 +113,7 @@ int main(int argc, char * argv[])
         sliceRenderer.setSliceDirection(tgt);
         fixedObjectRenderer.rendering(projection, modelview);
         sliceRenderer.rendering(projection, modelview, sliceRot, simulator.rhoTexture);
-        
+        simulator.testCompute();
         window.swapBuffers();
     }
     
