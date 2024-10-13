@@ -10,21 +10,38 @@
 #include <string>
 #include "ComputeCommand.hpp"
 #include "ShaderCommand.hpp"
+struct Slab
+{
+    float* src_texture;
+    float* dst_texture;
+    GLuint src_ssbo;
+    GLuint dst_ssbo;
+    void swap_src_dst()
+    {
+        std::swap(src_texture,dst_texture);
+    }
+    Slab(){}
+    Slab(unsigned int width,unsigned int height,unsigned int depth)
+    {
+        src_texture = (float*)malloc(sizeof(float) * depth * width * height);
+        dst_texture = (float*)malloc(sizeof(float) * depth * width * height);
+    }
+};
+
 struct Simulator{
     //FluidVariables
     static float timestep;
     static float dx;
-    float* x_velocityTexture;
-    float* y_velocityTexture;
-    float* z_velocityTexture;
-    float* x_forceTexture;
-    float* y_forceTexture;
-    float* z_forceTexture;
-    float* pressureTexture;
-    float* rhoTexture;
-    float* templatureTexture;
-    float* testTexture;
-    
+    Slab x_velocity;
+    Slab y_velocity;
+    Slab z_velocity;
+    Slab x_force;
+    Slab y_force;
+    Slab z_force;
+    Slab pressure;
+    Slab rho;
+    Slab templature;
+    Slab test;
     Simulator();
     //FluidFunctions
     void testCompute();

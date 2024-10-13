@@ -12,10 +12,8 @@
 // シェーダオブジェクトのコンパイル結果を表示する
 // shader: シェーダオブジェクト名
 // str: コンパイルエラーが発生した場所を示す文字列
-//class ShaderCommand
-//{
-//
-//}
+
+
 GLboolean printShaderInfoLog(GLuint shader, const char *str);
 GLboolean printProgramInfoLog(GLuint program);
 //プログラムオブジェクトを作成する

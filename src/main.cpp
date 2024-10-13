@@ -65,10 +65,12 @@ int main(int argc, char * argv[])
     {
         std::string str_rho = "rhoTexture";
         std::string str_test = "testTexture";
-        if(id % 500 == 50)
+        if(id % 500 == 1)
         {
-            buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.rhoTexture,str_rho);
-            buffer_write_png(TEXWIDTH,TEXHEIGHT,1,1,simulator.testTexture,str_test);
+            // buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.rhoTexture,str_rho);
+            // buffer_write_png(TEXWIDTH,TEXHEIGHT,1,1,simulator.testTexture,str_test);
+            buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.rho.src_texture,str_rho);
+            buffer_write_png(TEXWIDTH,TEXHEIGHT,1,1,simulator.test.src_texture,str_test);
         }
         std::string inputFileName = "../../resources/density_txt/output";
         inputFileName += std::to_string(id % 500)+".txt";
@@ -112,7 +114,9 @@ int main(int argc, char * argv[])
                            );
         sliceRenderer.setSliceDirection(tgt);
         fixedObjectRenderer.rendering(projection, modelview);
-        sliceRenderer.rendering(projection, modelview, sliceRot, simulator.rhoTexture);
+        // sliceRenderer.rendering(projection, modelview, sliceRot, simulator.rhoTexture);
+        sliceRenderer.rendering(projection, modelview, sliceRot, simulator.rho.src_texture);
+
         simulator.testCompute();
         window.swapBuffers();
     }

@@ -7,16 +7,16 @@
 #include "Simulator.hpp"
 Simulator::Simulator()
 {
-    x_velocityTexture = (float*)malloc(sizeof(float) * TEXDEPTH * (TEXWIDTH+1) * TEXHEIGHT);
-    y_velocityTexture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * (TEXHEIGHT+1));
-    z_velocityTexture = (float*)malloc(sizeof(float) * (TEXDEPTH+1) * TEXWIDTH * TEXHEIGHT);
-    x_forceTexture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * TEXHEIGHT);
-    y_forceTexture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * TEXHEIGHT);
-    z_forceTexture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * TEXHEIGHT);
-    pressureTexture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * TEXHEIGHT);
-    templatureTexture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * TEXHEIGHT);
-    rhoTexture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * TEXHEIGHT);
-    testTexture = (float*)malloc(sizeof(float) * 1 * TEXWIDTH * TEXHEIGHT);
+    x_velocity = Slab(TEXWIDTH+1,TEXHEIGHT,TEXDEPTH);
+    x_velocity = Slab(TEXWIDTH,TEXHEIGHT+1,TEXDEPTH);
+    x_velocity = Slab(TEXWIDTH,TEXHEIGHT,TEXDEPTH+1);
+    x_force = Slab(TEXWIDTH,TEXHEIGHT,TEXDEPTH);
+    y_force = Slab(TEXWIDTH,TEXHEIGHT,TEXDEPTH);
+    z_force = Slab(TEXWIDTH,TEXHEIGHT,TEXDEPTH);
+    pressure = Slab(TEXWIDTH,TEXHEIGHT,TEXDEPTH);
+    rho = Slab(TEXWIDTH,TEXHEIGHT,TEXDEPTH);
+    templature = Slab(TEXWIDTH,TEXHEIGHT,TEXDEPTH);
+    test = Slab(TEXWIDTH,TEXHEIGHT,1);
 }
 void Simulator::testCompute()
 {
@@ -25,53 +25,69 @@ void Simulator::testCompute()
     uint32_t num = TEXWIDTH * TEXHEIGHT;
     GLuint shader_program = loadComputeProgram("../../shader/test.comp");
 
+    glUseProgram(shader_program);
     
     GLuint uniform_element_size = glGetUniformLocation(shader_program, "element_size");
     GLuint texwidth = glGetUniformLocation(shader_program, "texwidth");
-    GLuint ssbo;
     //Bufferの宣言のイメージ。第一引数に指定した数をまとめて宣言できる。
-    glGenBuffers(1, &ssbo);
+    glGenBuffers(1, &test.src_ssbo);
     //Bufferの型を決める。
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, test.src_ssbo);
     //BufferにデータをCPUからGPUに転送する。
     glBufferData(GL_SHADER_STORAGE_BUFFER, num * sizeof(float), nullptr, GL_DYNAMIC_COPY);
-    //リセット？なくてもいい気がする。
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    glUseProgram(shader_program);
-
+    // glBufferData(GL_SHADER_STORAGE_BUFFER, num * sizeof(float), testTexture, GL_DYNAMIC_DRAW);
     glUniform1ui(uniform_element_size, num);
     glUniform1ui(texwidth, TEXWIDTH);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
-
-    // glDispatchCompute(num / 256 + 1, 1, 1);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, test.src_ssbo);
     glDispatchCompute(num / 64 + 1, 1, 1);
 
-    glUseProgram(0);
+    
 
-    //std::vector<float> data(num);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+    GLuint shader_program_2 = loadComputeProgram("../../shader/test2.comp");
+
+    glUseProgram(shader_program_2);
+    
+    GLuint uniform_element_size_2 = glGetUniformLocation(shader_program_2, "element_size");
+    GLuint texwidth_2 = glGetUniformLocation(shader_program_2, "texwidth");
+    //Bufferの宣言のイメージ。第一引数に指定した数をまとめて宣言できる。
+    glGenBuffers(1, &test.dst_ssbo);
+    //Bufferの型を決める。
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, test.dst_ssbo);
+    //BufferにデータをCPUからGPUに転送する。
+    // glBufferData(GL_SHADER_STORAGE_BUFFER, num * sizeof(float), nullptr, GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, num * sizeof(float), test.src_texture, GL_DYNAMIC_COPY);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, test.src_ssbo);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, test.dst_ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, num * sizeof(float), nullptr, GL_DYNAMIC_COPY);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, test.dst_ssbo);
+
+
+    glUniform1ui(uniform_element_size_2, num);
+    glUniform1ui(texwidth_2, TEXWIDTH);
+    glDispatchCompute(num / 64 + 1, 1, 1);
+    
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, test.dst_ssbo);
     //GPUからBufferを取得
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, num * sizeof(float), testTexture);
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    // for (auto v : data) { std::cout << v << '\n'; }
-
-    glDeleteBuffers(1, &ssbo);
-
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, num * sizeof(float), test.dst_texture);
+    test.swap_src_dst();
+    glDeleteBuffers(1, &test.src_ssbo);
     deleteComputeShaderProgram(shader_program);
+    glDeleteBuffers(2, &test.dst_ssbo);
+    deleteComputeShaderProgram(shader_program_2);
 }
 void Simulator::inputTXT(std::string &InputFileName)
 {
     float max = 0;
-    rhoTexture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * TEXHEIGHT);
+    rho.src_texture = (float*)malloc(sizeof(float) * TEXDEPTH * TEXWIDTH * TEXHEIGHT);
     FILE *ifp = fopen(InputFileName.c_str(),"r");
     for(int k=0;k<TEXDEPTH;++k){
         for(int j=0;j<TEXHEIGHT;++j){
             for(int i=0;i<TEXWIDTH;++i){
                 float value;
                 fscanf(ifp, "%f", &value);
-                rhoTexture[resequence3to1(i, TEXHEIGHT - j, k, TEXWIDTH, TEXHEIGHT, TEXDEPTH)] = value;
+                rho.src_texture[resequence3to1(i, TEXHEIGHT - j, k, TEXWIDTH, TEXHEIGHT, TEXDEPTH)] = value;
             }
         }
     }

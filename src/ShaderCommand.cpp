@@ -159,7 +159,6 @@ GLuint loadComputeProgram(const char *comp)
     // プログラムオブジェクトを作成する
     return vstat ? createComputeProgram(csrc.data()) : 0;
 }
-
 void deleteComputeShaderProgram(GLuint program) {
     glDeleteProgram(program);
 }
