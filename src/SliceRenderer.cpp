@@ -107,7 +107,7 @@ GLuint SliceRenderer::makeSlice()
     return vao;
 }
 
-GLuint SliceRenderer::makeVolume(float* rhoTexture, GLfloat *smokeColor,Eigen::Vector3f &tgt)
+GLuint SliceRenderer::makeVolume(float* densityTexture, GLfloat *smokeColor,Eigen::Vector3f &tgt)
 {
 //    std::vector<GLubyte>volume;
     std::vector<GLfloat>volume;
@@ -116,10 +116,10 @@ GLuint SliceRenderer::makeVolume(float* rhoTexture, GLfloat *smokeColor,Eigen::V
     for(int k=0;k<TEXDEPTH;++k){
         for(int j=0;j<TEXHEIGHT;++j){
             for(int i=0;i<TEXWIDTH;++i){
-                float transparency = exp( -1.0 * rhoTexture[resequence3to1(i, j, k, TEXWIDTH, TEXHEIGHT, TEXDEPTH)] * marchingLength);
+                float transparency = exp( -1.0 * densityTexture[resequence3to1(i, j, k, TEXWIDTH, TEXHEIGHT, TEXDEPTH)] * marchingLength);
                 float transparency10 = exp( -1.0 * 10 * marchingLength);
                 float transparency255 = exp( -1.0 * 255 * marchingLength);
-//                std::cout << rhoTexture[resequence3to1(i, j, k, TEXWIDTH, TEXHEIGHT, TEXDEPTH)] << std::endl;
+//                std::cout << densityTexture[resequence3to1(i, j, k, TEXWIDTH, TEXHEIGHT, TEXDEPTH)] << std::endl;
                 float opacity = 1 - transparency;
                 float opacity10 = 1 - transparency10;
                 float opacity255 = 1 - transparency255;
@@ -211,7 +211,7 @@ GLuint makeSlice()
     
     return vao;
 }
-void SliceRenderer::rendering(Matrix4x4 &projection,Matrix4x4 &modelview,Matrix4x4 &sliceRot,float* rhoTexture)
+void SliceRenderer::rendering(Matrix4x4 &projection,Matrix4x4 &modelview,Matrix4x4 &sliceRot,float* densityTexture)
 {
     const GLuint volumeProgram(loadVertFragProgram("../../shader/volume.vert", "../../shader/volume.frag"));
     const GLint mwLoc(glGetUniformLocation(volumeProgram, "mw"));
@@ -239,7 +239,7 @@ void SliceRenderer::rendering(Matrix4x4 &projection,Matrix4x4 &modelview,Matrix4
     glEnable(GL_BLEND);
     glUniform1f(volumeLoc, 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, makeVolume(rhoTexture, smokeColor,tgt));
+    glBindTexture(GL_TEXTURE_3D, makeVolume(densityTexture, smokeColor,tgt));
     glBindVertexArray(slice);
     //複製する描画方法．第四引数がインスタンスの数
     

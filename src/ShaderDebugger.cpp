@@ -1,9 +1,23 @@
 #include "ShaderDebugger.hpp"
-
+void normalize(unsigned int buffer_width, unsigned int buffer_height, unsigned int buffer_depth,float* src_buffer,float* dst_buffer)
+{
+    float max = 1.0f;
+    unsigned int size = buffer_width * buffer_height * buffer_depth;
+    for(int i=0;i<size;++i)
+    {
+        if(max < src_buffer[i])max = src_buffer[i];
+    }
+    for(int i=0;i<size;++i)
+    {
+       dst_buffer[i] = src_buffer[i]/max;
+    }
+}
 int buffer_write_png(
     unsigned int buffer_width, unsigned int buffer_height, unsigned int buffer_depth, 
-    unsigned int delta_z, float* buffer, std::string &bufferName)
+    unsigned int delta_z, float* src_buffer, std::string &bufferName)
 {
+    float* buffer = (float*)malloc(sizeof(float) * buffer_width * buffer_height * buffer_depth);
+    normalize(buffer_width,buffer_height,buffer_depth,src_buffer,buffer);
     constexpr std::size_t width{ 1024 }, height{ 1024 }; //幅と高さ
     unsigned int magnificate_width = width / buffer_width;
     unsigned int magnificate_height = height / buffer_height;

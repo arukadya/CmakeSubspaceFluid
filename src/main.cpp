@@ -20,16 +20,15 @@
 #include "SliceRenderer.hpp"
 #include "Eigen/Dense"
 #include "ShaderDebugger.hpp"
-
+/*
+FixedObjectRenderer,SliceRendererのconst工事
+*/
 int main(int argc, char * argv[])
 {
-    Simulator simulator;
+    Simulator simulator(DX);
+    std::cout << "Sucssess initialize Simulator" << std::endl;
     FixedObjectRenderer fixedObjectRenderer;
     SliceRenderer sliceRenderer;
-    
-//    Mesh bunny = simulator.mesh;
-//    bunny.input("bun_zipper_f10000.obj");
-//    bunny.input("bun_zipper.obj");
     //GLFWを初期化する
     if(glfwInit() == GL_FALSE){
         std::cerr << "Can't initialize GLFW" << std::endl;
@@ -63,19 +62,25 @@ int main(int argc, char * argv[])
     float sum = 0;
     while(window)
     {
-        std::string str_rho = "rhoTexture";
+        std::string str_density = "densityTexture";
+        std::string str_templature = "templatureTexture";
+        std::string str_force = "forceTexture";
         std::string str_test = "testTexture";
-        if(id % 500 == 1)
+        if(id % 500 == 10)
         {
-            // buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.rhoTexture,str_rho);
+            // buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.densityTexture,str_density);
             // buffer_write_png(TEXWIDTH,TEXHEIGHT,1,1,simulator.testTexture,str_test);
-            buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.rho.src_texture,str_rho);
-            buffer_write_png(TEXWIDTH,TEXHEIGHT,1,1,simulator.test.src_texture,str_test);
+            // buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.density_tgt.src_texture,str_density);
+            buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.y_force.src_texture,str_force);
+            buffer_write_png(TEXWIDTH,TEXHEIGHT,TEXDEPTH,4,simulator.templature.src_texture,str_templature);
+            // buffer_write_png(TEXWIDTH,TEXHEIGHT,1,1,simulator.test.src_texture,str_test);
         }
         std::string inputFileName = "../../resources/density_txt/output";
         inputFileName += std::to_string(id % 500)+".txt";
         ++id;
         simulator.inputTXT(inputFileName);
+        simulator.oneloop();
+
         Eigen::Vector3f viewPoint(4.0f, 4.0f, 4.0f);
 //        viewPoint /= 1.732;
         // 拡大縮小の変換行列を求める
@@ -114,8 +119,8 @@ int main(int argc, char * argv[])
                            );
         sliceRenderer.setSliceDirection(tgt);
         fixedObjectRenderer.rendering(projection, modelview);
-        // sliceRenderer.rendering(projection, modelview, sliceRot, simulator.rhoTexture);
-        sliceRenderer.rendering(projection, modelview, sliceRot, simulator.rho.src_texture);
+        // sliceRenderer.rendering(projection, modelview, sliceRot, simulator.densityTexture);
+        sliceRenderer.rendering(projection, modelview, sliceRot, simulator.density_tgt.src_texture);
 
         simulator.testCompute();
         window.swapBuffers();
